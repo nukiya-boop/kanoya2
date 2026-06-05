@@ -9,8 +9,8 @@ IMAGES_DIR = "images"
 OUTPUT = "kasuga_mori_caption.mp4"
 W, H = 1280, 720
 FPS = 30
-DURATION = 5
-FADE = 1
+DURATION = 3.5
+FADE = 0.8
 FONT = "/usr/share/fonts/opentype/ipafont-gothic/ipag.ttf"
 
 images = sorted([f for f in os.listdir(IMAGES_DIR) if f.lower().endswith(".jpg")])
@@ -35,8 +35,8 @@ clips = []
 
 total_frames = FPS * (DURATION + FADE)
 # テロップのフェードイン/アウトタイミング
-text_fadein_end = FPS * 1.0    # 1秒でフェードイン完了
-text_fadeout_start = FPS * 4.5 # 4.5秒からフェードアウト開始
+text_fadein_end = FPS * 0.6    # 0.6秒でフェードイン完了
+text_fadeout_start = FPS * 3.0 # 3.0秒からフェードアウト開始
 
 for i, (img, caption) in enumerate(zip(images, captions)):
     path = os.path.join(IMAGES_DIR, img)
