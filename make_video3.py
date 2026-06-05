@@ -44,26 +44,37 @@ for i, (img, caption) in enumerate(zip(images, captions)):
     clips.append(out)
 
     zoom_in = (i % 2 == 0)
+    is_last = (i == len(images) - 1)
 
-    scale_filter = (
-        f"scale={int(W*1.08)}:{int(H*1.08)}:force_original_aspect_ratio=increase,"
-        f"crop={int(W*1.08)}:{int(H*1.08)},"
-        f"scale={W}:{H}:force_original_aspect_ratio=decrease,"
-        f"pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:black"
-    )
-
-    if zoom_in:
-        zoom_expr = f"1.08-0.08*in/{total_frames}"
+    if is_last:
+        # 最後の縦長画像: 幅に合わせてスケールし上→下にパン
+        vf = (
+            f"scale={W}:-2,"
+            f"fps={FPS},"
+            f"crop={W}:{H}:0:'(ih-{H})*n/{total_frames}',"
+            f"eq=brightness=0.03:saturation=1.15:gamma_r=1.04:gamma_b=0.96,"
+            f"setsar=1"
+        )
     else:
-        zoom_expr = f"1+0.08*in/{total_frames}"
+        scale_filter = (
+            f"scale={int(W*1.08)}:{int(H*1.08)}:force_original_aspect_ratio=increase,"
+            f"crop={int(W*1.08)}:{int(H*1.08)},"
+            f"scale={W}:{H}:force_original_aspect_ratio=decrease,"
+            f"pad={W}:{H}:(ow-iw)/2:(oh-ih)/2:black"
+        )
 
-    vf = (
-        f"{scale_filter},"
-        f"zoompan=z='{zoom_expr}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
-        f":d={total_frames}:s={W}x{H}:fps={FPS},"
-        f"eq=brightness=0.03:saturation=1.15:gamma_r=1.04:gamma_b=0.96,"
-        f"setsar=1"
-    )
+        if zoom_in:
+            zoom_expr = f"1.08-0.08*in/{total_frames}"
+        else:
+            zoom_expr = f"1+0.08*in/{total_frames}"
+
+        vf = (
+            f"{scale_filter},"
+            f"zoompan=z='{zoom_expr}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
+            f":d={total_frames}:s={W}x{H}:fps={FPS},"
+            f"eq=brightness=0.03:saturation=1.15:gamma_r=1.04:gamma_b=0.96,"
+            f"setsar=1"
+        )
 
     # テロップ: フェードイン/アウト付き、下部中央
     font_size = 38
